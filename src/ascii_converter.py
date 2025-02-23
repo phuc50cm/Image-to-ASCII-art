@@ -1,6 +1,8 @@
-from PIL import Image
+import os
+from PIL import Image, ImageDraw, ImageFont
 from grayscale import GrayScale
 import numpy as np
+from errors import ImageTooSmall
 
 class AsciiConverter:
     def __init__(self, grayscale_level=GrayScale.LEVEL_70):
@@ -9,9 +11,9 @@ class AsciiConverter:
         self.level = len(self.ascii) - 1
 
 
-    def img_to_ascii(self, filename, cols, font_scale):
+    def img_to_ascii(self, img_filepath, cols, font_scale):
         # Open image and convert to grayscale
-        image = Image.open(filename).convert('L')
+        image = Image.open(img_filepath).convert('L')
 
         # Get size of row and col of tiles
         image_width, image_height = image.width, image.height
@@ -27,7 +29,7 @@ class AsciiConverter:
 
         # Check if image is to small to represenet
         if cols > image_width or rows > image_height:
-            exit(1)
+            raise ImageTooSmall()
 
         # Create list of character string to store ascii
         ascii_art = []
@@ -59,8 +61,9 @@ class AsciiConverter:
                 ascii_char = self.get_ascii_char(avg_tile_luminace)
                 ascii_art[j] += ascii_char
                 
+                # Need to fix 
                 # Write to file
-                self.ascii_to_file(ascii_art, "output.txt")
+                self.ascii_to_file(ascii_art, img_filepath)
 
         image.close()
 
@@ -74,18 +77,30 @@ class AsciiConverter:
         char = self.ascii[int((avg_value * self.level) / 255)]
         return char
 
-    def ascii_to_file(self, ascii_art, output_file):
+    def ascii_to_file(self, ascii_art, img_filepath):
         """
         Take an array of ascii_char and write it to text file.
 
-        Args: acsii_art is an acsii array of string.
+        Args: acsii_art is an acsii array of string and image file path
+        Output a text file with same name as image file path
         """
+         
+        base_file_name = os.path.basename(img_filepath)
+        output_file = f"{os.path.splitext(base_file_name)[0]}.txt"
+
         file = open(output_file, 'w')
         for row in ascii_art:
             file.write(row + '\n')
         file.close()
     
+    def ascii_to_image(self, ascii_art, width, height):
+        """
+        Take an array of ascii char and create image of it
 
+        Args: ascii_art is an acsii array of string and
+        Create a image file
+        """
+        pass
 
 def avg_luminance(image):
     """
