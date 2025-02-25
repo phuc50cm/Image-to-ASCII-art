@@ -9,6 +9,8 @@ class AsciiConverter:
         self.grayscale_level = grayscale_level
         self.ascii = self.grayscale_level.value
         self.level = len(self.ascii) - 1
+        self.font_path = "../fonts/FiraMono-Regular.ttf"
+        self.font_size = 1
 
 
     def img_to_ascii(self, img_filepath, cols, font_scale):
@@ -58,16 +60,17 @@ class AsciiConverter:
                 avg_tile_luminace = avg_luminance(tile_image)
 
                 # Look up ascii char
-                ascii_char = self.get_ascii_char(avg_tile_luminace)
+                ascii_char = self._get_ascii_char(avg_tile_luminace)
                 ascii_art[j] += ascii_char
                 
-                # Need to fix 
                 # Write to file
-                self.ascii_to_file(ascii_art, img_filepath)
+                #self._ascii_to_file(ascii_art, img_filepath)
+
+        self._ascii_to_image(ascii_art, cols, rows, image_width, image_height)
 
         image.close()
 
-    def get_ascii_char(self, avg_value):
+    def _get_ascii_char(self, avg_value):
         """
         Calute gray scale char base on the average luminance.
 
@@ -77,7 +80,7 @@ class AsciiConverter:
         char = self.ascii[int((avg_value * self.level) / 255)]
         return char
 
-    def ascii_to_file(self, ascii_art, img_filepath):
+    def _ascii_to_file(self, ascii_art, img_filepath):
         """
         Take an array of ascii_char and write it to text file.
 
@@ -93,14 +96,48 @@ class AsciiConverter:
             file.write(row + '\n')
         file.close()
     
-    def ascii_to_image(self, ascii_art, width, height):
+    def _ascii_to_image(self, ascii_art, cols, rows, original_width, original_height):
         """
         Take an array of ascii char and create image of it
 
         Args: ascii_art is an acsii array of string and
         Create a image file
         """
-        pass
+        #image = Image.new("RGB", (image_width, image_height), "white")
+        #draw = ImageDraw.Draw(image)
+
+        font = ImageFont.truetype(self.font_path, 10)
+
+        # Start creating image
+        bbox = font.getbbox("A")
+        char_width = bbox[2] - bbox[0]
+        line_height = bbox[3] - bbox[1]
+
+        image_width = cols * char_width
+        image_height = rows * line_height
+        image = Image.new("RGB", (image_width, image_height), "white")
+        draw = ImageDraw.Draw(image)
+            
+        x, y = 0, 0
+        for line in ascii_art:
+            draw.text((x, y), line, font=font, fill="black")
+            y += line_height
+
+        image = image.resize((original_width, original_height), resample=Image.Resampling.LANCZOS)
+        image.save("test.png")
+
+    def set_new_font(self, new_font_path):
+        self.font_path = new_font_path
+
+    def _find_best_font_size(self, draw, text, max_width):
+        self.font_size = 1
+        while True:
+            font = ImageFont.truetype(self.font_path, self.font_size)
+            text_width = draw.textlength(text, font=font)
+            if text_width > max_width:
+                self.font_size -= 1
+                return 
+            self.font_size += 1
 
 def avg_luminance(image):
     """
