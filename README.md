@@ -23,17 +23,22 @@ A tool that creates ASCII art from an image, and outputs an ASCII image.
 
 ## Usage
 After installation, run the command line to convert
-usage: python convert.py [-h] [-f FILE] [-c COLS] [-l {10,70}]
+
+Usage: `python convert.py [-h] [-f FILE] [-c COLS] [-l {10,70}]`
 
 Options:
+
   -h, --help            show this help message and exit
+  
   -f FILE, --file FILE  the file being converted
+  
   -c COLS, --cols COLS  the resolution of the resulting image
+  
   -l {10,70}, --level {10,70}
                         grayscale level
 
 Example:
-python convert.py -f "my_image.png" -c 700 -l 70
+`python convert.py -f "my_image.png" -c 700 -l 70`
 
 Note:
 - If you don't specify the -l option, it will take the default value (70)
