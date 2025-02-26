@@ -11,16 +11,17 @@ class AsciiConverter:
         self.level = len(self.ascii) - 1
         self.font_path = "../fonts/FiraMono-Regular.ttf"
         self.font_size = 1
+        self.font_scale = 0.5
 
 
-    def img_to_ascii(self, img_filepath, cols, font_scale):
+    def img_to_ascii(self, img_filepath, cols):
         # Open image and convert to grayscale
         image = Image.open(img_filepath).convert('L')
 
         # Get size of row and col of tiles
         image_width, image_height = image.width, image.height
         tile_width = image_width / cols
-        tile_height = tile_width / font_scale
+        tile_height = tile_width / self.font_scale
         rows = int(image_height / tile_height)
 
         """
@@ -124,7 +125,10 @@ class AsciiConverter:
             y += line_height
 
         image = image.resize((original_width, original_height), resample=Image.Resampling.LANCZOS)
-        image.save("test.png")
+
+        # Print sucess message and write to image file
+        print("Converting Successfully to output.png")
+        image.save("output.png")
 
     def set_new_font(self, new_font_path):
         self.font_path = new_font_path
